@@ -66,8 +66,6 @@ jobs:
           cd platform/android/java
           chmod +x ./gradlew
           ./gradlew generateGodotEditor
-          ./gradlew generateGodotHorizonOSEditor
-          ./gradlew generateGodotPicoOSEditor
           cd ../../..
           ls -l bin/android_editor_builds/
 
