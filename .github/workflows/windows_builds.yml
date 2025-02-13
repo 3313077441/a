@@ -23,17 +23,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Template (target=template_release)
-            cache-name: windows-template
-            target: template_release
-            tests: false
-            sconsflags: debug_symbols=no
+          - name: Editor (target=editor, tests=yes)
+            cache-name: windows-editor
+            target: editor
+            tests: true
+            # Skip debug symbols, they're way too big with MSVC.
+            sconsflags: debug_symbols=no vsproj=yes windows_subsystem=console
+            bin: "./bin/godot.windows.editor.x86_64.exe"
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Restore Godot build cache
-        uses: ./.github/actions/godot-cache-restore
+      - name: Setup Godot build cache
+        uses: ./.github/actions/godot-cache
         with:
           cache-name: ${{ matrix.cache-name }}
         continue-on-error: true
@@ -52,12 +54,6 @@ jobs:
           target: ${{ matrix.target }}
           tests: ${{ matrix.tests }}
 
-      - name: Save Godot build cache
-        uses: ./.github/actions/godot-cache-save
-        with:
-          cache-name: ${{ matrix.cache-name }}
-        continue-on-error: true
-
       # Execute unit tests for the editor
       - name: Unit tests
         if: ${{ matrix.tests }}
@@ -65,11 +61,9 @@ jobs:
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
           ${{ matrix.bin }} --test
-
       - name: Prepare artifact
         run: |
           Remove-Item bin/* -Include *.exp,*.lib,*.pdb -Force
-
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
         with:
