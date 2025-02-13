@@ -20,11 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor)
-            cache-name: android-editor
-            target: editor
+          - name: Template arm64 (target=template_release, arch=arm64)
+            cache-name: android-template-arm64
+            target: template_debug
             tests: false
-            sconsflags: arch=arm64 production=yes
+            sconsflags: arch=arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -60,15 +60,14 @@ jobs:
           cache-name: ${{ matrix.cache-name }}
         continue-on-error: true
 
-      - name: Generate Godot editor
-        if: matrix.target == 'editor'
+      - name: Generate Godot templates
+        if: matrix.target == 'template_debug'
         run: |
           cd platform/android/java
           chmod +x ./gradlew
-          ./gradlew generateGodotEditor
+          ./gradlew generateGodotTemplates
           cd ../../..
-          ls -l bin/android_editor_builds/
-
+          ls -l bin/
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
         with:
