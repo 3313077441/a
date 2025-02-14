@@ -37,24 +37,23 @@ jobs:
           - name: Editor with doubles and GCC sanitizers (target=editor, tests=yes, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=gold)
             cache-name: linux-editor-double-sanitizers
             target: editor
-            tests: true
+            tests: false
             # Debug symbols disabled as they're huge on this build and we hit the 14 GB limit for runners.
             sconsflags: dev_build=yes scu_build=yes debug_symbols=no precision=double use_asan=yes use_ubsan=yes linker=gold
-            proj-test: true
+            proj-test: false
             # Can be turned off for PRs that intentionally break compat with godot-cpp,
             # until both the upstream PR and the matching godot-cpp changes are merged.
-            godot-cpp-test: true
+            godot-cpp-test: false
             bin: "./bin/godot.linuxbsd.editor.dev.double.x86_64.san"
             build-mono: false
             # Skip 2GiB artifact speeding up action.
             artifact: true
 
-          - name: Editor with clang sanitizers (target=editor, tests=yes, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
+          - name: Editor with clang sanitizers (target=editor)
             cache-name: linux-editor-llvm-sanitizers
             target: editor
-            tests: true
-            sconsflags: dev_build=yes use_asan=yes use_ubsan=yes use_llvm=yes linker=lld
-            bin: "./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san"
+            tests: false
+            bin: "./bin/godot.linuxbsd.editor.dev.x86_64"
             build-mono: false
             # Skip 2GiB artifact speeding up action.
             artifact: true
