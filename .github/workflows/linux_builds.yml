@@ -110,6 +110,7 @@ jobs:
       - name: Build .NET solutions
         if: ${{ matrix.build-mono }}
         run: |
+          chmod +x ./modules/mono/build_scripts/build_assemblies.py
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd
 
       # Execute unit tests for the editor
@@ -153,12 +154,14 @@ jobs:
         if: ${{ matrix.proj-test }}
         run: |
           xvfb-run ${{ matrix.bin }} --audio-driver Dummy --editor --quit --path test_project 2>&1 | tee sanitizers_log.txt || true
+          chmod +x misc/scripts/check_ci_log.py
           misc/scripts/check_ci_log.py sanitizers_log.txt
 
       - name: Open and close editor (GLES3)
         if: ${{ matrix.proj-test }}
         run: |
           DRI_PRIME=0 xvfb-run ${{ matrix.bin }} --audio-driver Dummy --rendering-driver opengl3 --editor --quit --path test_project 2>&1 | tee sanitizers_log.txt || true
+          chmod +x misc/scripts/check_ci_log.py
           misc/scripts/check_ci_log.py sanitizers_log.txt
 
       # Run test project
