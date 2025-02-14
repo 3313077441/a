@@ -109,7 +109,7 @@ jobs:
       - name: Build .NET solutions
         if: ${{ matrix.build-mono }}
         run: |
-          chmod +x ./modules/mono/build_scripts/build_assemblies.py
+          chmod 644 modules/mono/build_scripts/build_assemblies.py
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd
 
       # Execute unit tests for the editor
