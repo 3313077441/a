@@ -34,6 +34,7 @@ import org.godotengine.godot.FullScreenGodotApp;
 
 import android.os.Bundle;
 
+import androidx.core.splashscreen.SplashScreen;
 /**
  * Template activity for Godot Android builds.
  * Feel free to extend and modify this class for your custom logic.
@@ -41,7 +42,7 @@ import android.os.Bundle;
 public class GodotApp extends FullScreenGodotApp {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme(R.style.GodotAppMainTheme);
+		SplashScreen.installSplashScreen(this);
 		super.onCreate(savedInstanceState);
 	}
 }
