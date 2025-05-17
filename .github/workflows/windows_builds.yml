@@ -23,9 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Template (target=template_release)
+          - name: Template (target=template_debug)
             cache-name: windows-template
-            target: template_release
+            target: template_debug
             tests: false
             sconsflags: debug_symbols=no
 
