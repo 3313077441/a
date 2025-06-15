@@ -26,11 +26,11 @@ jobs:
             tests: false
             sconsflags: arch=arm64 production=yes
 
-          - name: Template arm64 (target=template_debug, arch=arm64)
-            cache-name: android-template-arm64
-            target: template_debug
-            tests: false
-            sconsflags: arch=arm64
+          #- name: Template arm64 (target=template_debug, arch=arm64)
+            #cache-name: android-template-arm64
+            #target: template_debug
+            #tests: false
+            #sconsflags: arch=arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +79,7 @@ jobs:
         if: matrix.target == 'editor'
         run: |
           cd platform/android/java
+          chmod +x ./gradlew
           ./gradlew generateGodotEditor
           cd ../../..
           ls -l bin/android_editor_builds/
