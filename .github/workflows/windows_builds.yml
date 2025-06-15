@@ -22,17 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Template (target=template_debug)
-            cache-name: windows-template
-            target: template_debug
-            tests: false
-            sconsflags: debug_symbols=no
-
           - name: Editor (target=editor, tests=yes)
             cache-name: windows-editor
             target: editor
             tests: true
-            sconsflags: debug_symbols=no vsproj=yes windows_subsystem=consoleAdd commentMore actions
+            sconsflags: debug_symbols=no vsproj=yes windows_subsystem=console
             bin: "./bin/godot.windows.editor.x86_64.exe"
 
     steps:
