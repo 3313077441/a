@@ -7,7 +7,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 'main'
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes optimize=speed use_lto=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes optimize=speed use_lto=yes module_mono_enabled=yes
   SCONS_CACHE_MSVC_CONFIG: true
 
 concurrency:
@@ -22,12 +22,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor, tests=yes)
-            cache-name: windows-editor
-            target: editor
-            tests: true
-            sconsflags: debug_symbols=no vsproj=yes windows_subsystem=console
-            bin: "./bin/godot.windows.editor.x86_64.exe"
+        - name: Editor (Mono)
+          cache-name: windows-editor-mono
+          target: editor
+          tests: true
+          sconsflags: debug_symbols=no vsproj=yes windows_subsystem=console
+          bin: "./bin/godot.windows.editor.x86_64.mono.exe"
 
     steps:
       - uses: actions/checkout@v3
@@ -51,6 +51,12 @@ jobs:
           platform: windows
           target: ${{ matrix.target }}
           tests: ${{ matrix.tests }}
+
+      - name: Generate Mono glue
+        run: ./bin/godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue modules/mono/glue
+
+      - name: Build .NET assemblies
+        run: python ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=windows
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
