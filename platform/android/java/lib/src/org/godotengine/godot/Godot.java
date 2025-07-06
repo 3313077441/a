@@ -641,6 +641,13 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		if (method != null) {
 			new_args.add("--rendering-method");
 			new_args.add(method);
+			if (method.equals("gl_compatibility")) {
+				new_args.add("--rendering-driver");
+				new_args.add("opengl3");
+			} else if (method.equals("mobile")) {
+				new_args.add("--rendering-driver");
+				new_args.add("vulkan");
+			}
 		}
 		for (int i = 0; i < command_line.length; i++) {
 			boolean has_extra = i < command_line.length - 1;
