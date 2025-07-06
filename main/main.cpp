@@ -420,7 +420,7 @@ void Main::print_help(const char *p_binary) {
 	OS::get_singleton()->print("].\n");
 
 	OS::get_singleton()->print("  --rendering-method <renderer>     Renderer name. Requires driver support.\n");
-	OS::get_singleton()->print("  --rendering-driver <driver>       Rendering driver (depends on display driver).\n");
+	OS::get_singleton()->print("   <driver>       Rendering driver (depends on display driver).\n");
 	OS::get_singleton()->print("  --gpu-index <device_index>        Use a specific GPU (run with --verbose to get available device list).\n");
 	OS::get_singleton()->print("  --text-driver <driver>            Text driver (Fonts, BiDi, shaping).\n");
 	OS::get_singleton()->print("  --tablet-driver <driver>          Pen tablet input driver.\n");
@@ -972,14 +972,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			if (I->next()) {
 				rendering_driver = I->next()->get().to_lower();
 				N = I->next()->next();
-				if (rendering_driver == "mobile") {
-					rendering_method = "mobile";
-					rendering_driver = "vulkan";
-				} else if (rendering_driver == "compatibility") {
-					rendering_method = "gl_compatibility";
-					rendering_driver = "opengl3";
-				}
-				print_line("🟢 用户指定渲染器：" + rendering_driver + " / " + rendering_method);
 			} else {
 				OS::get_singleton()->print("Missing rendering driver argument, aborting.\n");
 				goto error;
