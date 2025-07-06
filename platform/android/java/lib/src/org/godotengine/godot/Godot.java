@@ -637,7 +637,7 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		String main_pack_key = null;
 		List<String> new_args = new LinkedList<>();
 		SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
-		String driver = prefs.getString("method", null);
+		String method = prefs.getString("method", null);
 		if (method != null) {
 			new_args.add("--rendering-method");
 			new_args.add(method);
