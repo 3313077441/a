@@ -620,7 +620,10 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 			.setTitle("选择渲染器模式")
 			.setItems(new String[]{"兼容模式（Compatibility）", "移动优化（Mobile）"}, (dialog, which) -> {
 				String selectedDriver = (which == 0) ? "compatibility" : "mobile";
-				System.setProperty("GODOT_RENDERING_DRIVER", selectedDriver);
+				SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
+				Editor editor = prefs.edit();
+				editor.putString("driver", selectedDriver);
+				editor.apply();
 				postRendererSelectionInit(icicle);
 			})
 			.setCancelable(false)
@@ -633,7 +636,12 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		String main_pack_md5 = null;
 		String main_pack_key = null;
 		List<String> new_args = new LinkedList<>();
-
+		SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
+		String driver = prefs.getString("driver", null);
+		if (driver != null) {
+			new_args.add("--rendering-driver");
+			new_args.add(driver);
+		}
 		for (int i = 0; i < command_line.length; i++) {
 			boolean has_extra = i < command_line.length - 1;
 			if (command_line[i].equals(XRMode.REGULAR.cmdLineArg)) {
