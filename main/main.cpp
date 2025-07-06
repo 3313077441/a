@@ -508,6 +508,7 @@ void Main::print_help(const char *p_binary) {
 #ifdef TESTS_ENABLED
 // The order is the same as in `Main::setup()`, only core and some editor types
 // are initialized here. This also combines `Main::setup2()` initialization.
+
 Error Main::test_setup() {
 	Thread::make_main_thread();
 	set_current_thread_safe_for_nodes(true);
@@ -723,6 +724,19 @@ int Main::test_entrypoint(int argc, char *argv[], bool &tests_need_run) {
 Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_phase) {
 	Thread::make_main_thread();
 	set_current_thread_safe_for_nodes(true);
+
+	if (OS::get_singleton()->has_environment("GODOT_RENDERING_DRIVER")) {
+		String driver = OS::get_singleton()->get_environment("GODOT_RENDERING_DRIVER");
+		if (driver == "mobile") {
+			rendering_method = "mobile";
+			rendering_driver = "vulkan";
+		} else if (driver == "compatibility") {
+			rendering_method = "gl_compatibility";
+			rendering_driver = "opengl3";
+		} else {
+			print_line("⚠️ 未知的渲染器选择标识：" + driver + "，将使用默认设置");
+		}
+	}
 
 	OS::get_singleton()->initialize();
 
