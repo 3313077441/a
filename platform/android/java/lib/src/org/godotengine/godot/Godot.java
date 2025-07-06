@@ -617,12 +617,12 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		pluginRegistry = GodotPluginRegistry.initializePluginRegistry(this);
 
 		new AlertDialog.Builder(activity)
-			.setTitle("选择渲染器模式")
-			.setItems(new String[]{"兼容模式（Compatibility）", "移动优化（Mobile）"}, (dialog, which) -> {
-				String selectedDriver = (which == 0) ? "compatibility" : "mobile";
+			.setTitle("选择渲染API")
+			.setItems(new String[]{"OpenGLES（Compatibility）", "Vulkan（Mobile）"}, (dialog, which) -> {
+				String selectedDriver = (which == 0) ? "gl_compatibility" : "mobile";
 				SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
 				Editor editor = prefs.edit();
-				editor.putString("driver", selectedDriver);
+				editor.putString("method", selectedDriver);
 				editor.apply();
 				postRendererSelectionInit(icicle);
 			})
@@ -637,10 +637,10 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		String main_pack_key = null;
 		List<String> new_args = new LinkedList<>();
 		SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
-		String driver = prefs.getString("driver", null);
-		if (driver != null) {
-			new_args.add("--rendering-driver");
-			new_args.add(driver);
+		String driver = prefs.getString("method", null);
+		if (method != null) {
+			new_args.add("--rendering-method");
+			new_args.add(method);
 		}
 		for (int i = 0; i < command_line.length; i++) {
 			boolean has_extra = i < command_line.length - 1;
