@@ -667,7 +667,7 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 				i++;
 			} else if (has_extra && command_line[i].equals("--apk_expansion_key")) {
 				main_pack_key = command_line[i + 1];
-				SharedPreferences prefs = activity.getSharedPreferences("app_data_keys", MODE_PRIVATE);
+				prefs = activity.getSharedPreferences("app_data_keys", MODE_PRIVATE);
 				Editor editor = prefs.edit();
 				editor.putString("store_public_key", main_pack_key);
 				editor.apply();
