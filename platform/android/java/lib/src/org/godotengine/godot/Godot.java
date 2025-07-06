@@ -616,39 +616,14 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		mClipboard = (ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
 		pluginRegistry = GodotPluginRegistry.initializePluginRegistry(this);
 
-		new AlertDialog.Builder(activity)
-			.setTitle("选择渲染API")
-			.setItems(new String[]{"OpenGLES（Compatibility）", "Vulkan（Mobile）"}, (dialog, which) -> {
-				String selectedDriver = (which == 0) ? "gl_compatibility" : "mobile";
-				SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
-				Editor editor = prefs.edit();
-				editor.putString("method", selectedDriver);
-				editor.apply();
-				postRendererSelectionInit(icicle);
-			})
-			.setCancelable(false)
-			.show();
-	}
-
-	private void postRendererSelectionInit(Bundle icicle) {
-		final Activity activity = getActivity();
+		// check for apk expansion API
+		boolean md5mismatch = false;
 		command_line = getCommandLine();
 		String main_pack_md5 = null;
 		String main_pack_key = null;
+
 		List<String> new_args = new LinkedList<>();
-		SharedPreferences prefs = activity.getSharedPreferences("godot_renderer", MODE_PRIVATE);
-		String method = prefs.getString("method", null);
-		if (method != null) {
-			new_args.add("--rendering-method");
-			new_args.add(method);
-			if (method.equals("gl_compatibility")) {
-				new_args.add("--rendering-driver");
-				new_args.add("opengl3");
-			} else if (method.equals("mobile")) {
-				new_args.add("--rendering-driver");
-				new_args.add("vulkan");
-			}
-		}
+
 		for (int i = 0; i < command_line.length; i++) {
 			boolean has_extra = i < command_line.length - 1;
 			if (command_line[i].equals(XRMode.REGULAR.cmdLineArg)) {
@@ -659,13 +634,13 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 				use_debug_opengl = true;
 			} else if (command_line[i].equals("--use_immersive")) {
 				use_immersive = true;
-				activity.getWindow().getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-					View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-					View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-					View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-					View.SYSTEM_UI_FLAG_FULLSCREEN |
-					View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+				window.getDecorView().setSystemUiVisibility(
+						View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+						View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+						View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+						View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav bar
+						View.SYSTEM_UI_FLAG_FULLSCREEN | // hide status bar
+						View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 				UiChangeListener();
 			} else if (command_line[i].equals("--use_apk_expansion")) {
 				use_apk_expansion = true;
@@ -674,9 +649,11 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 				i++;
 			} else if (has_extra && command_line[i].equals("--apk_expansion_key")) {
 				main_pack_key = command_line[i + 1];
-				prefs = activity.getSharedPreferences("app_data_keys", MODE_PRIVATE);
+				SharedPreferences prefs = activity.getSharedPreferences("app_data_keys",
+						MODE_PRIVATE);
 				Editor editor = prefs.edit();
 				editor.putString("store_public_key", main_pack_key);
+
 				editor.apply();
 				i++;
 			} else if (command_line[i].equals("--benchmark")) {
@@ -685,8 +662,11 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 			} else if (has_extra && command_line[i].equals("--benchmark-file")) {
 				BenchmarkUtils.setUseBenchmark(true);
 				new_args.add(command_line[i]);
+
+				// Retrieve the filepath
 				BenchmarkUtils.setBenchmarkFile(command_line[i + 1]);
 				new_args.add(command_line[i + 1]);
+
 				i++;
 			} else if (command_line[i].trim().length() != 0) {
 				new_args.add(command_line[i]);
@@ -696,14 +676,15 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 		if (new_args.isEmpty()) {
 			command_line = null;
 		} else {
-			command_line = new_args.toArray(new String[0]);
+			command_line = new_args.toArray(new String[new_args.size()]);
 		}
-
 		if (use_apk_expansion && main_pack_md5 != null && main_pack_key != null) {
+			// check that environment is ok!
 			if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-				return;
+				// show popup and die
 			}
 
+			// Build the full path to the app's expansion files
 			try {
 				expansion_pack_path = Helpers.getSaveFilePath(getContext());
 				expansion_pack_path += "/main." + activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionCode + "." + activity.getPackageName() + ".obb";
@@ -712,35 +693,56 @@ public class Godot extends Fragment implements SensorEventListener, IDownloaderC
 			}
 
 			File f = new File(expansion_pack_path);
-			boolean pack_valid = f.exists() && !obbIsCorrupted(expansion_pack_path, main_pack_md5);
+
+			boolean pack_valid = true;
+
+			if (!f.exists()) {
+				pack_valid = false;
+
+			} else if (obbIsCorrupted(expansion_pack_path, main_pack_md5)) {
+				pack_valid = false;
+				try {
+					f.delete();
+				} catch (Exception e) {
+				}
+			}
 
 			if (!pack_valid) {
-				try { f.delete(); } catch (Exception ignored) {}
-
 				Intent notifierIntent = new Intent(activity, activity.getClass());
 				notifierIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-				PendingIntent pendingIntent = PendingIntent.getActivity(
-					activity, 0, notifierIntent,
-					Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-						PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE :
-						PendingIntent.FLAG_UPDATE_CURRENT
-				);
+				PendingIntent pendingIntent;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					pendingIntent = PendingIntent.getActivity(activity, 0,
+							notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+				} else {
+					pendingIntent = PendingIntent.getActivity(activity, 0,
+							notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+				}
 
+				int startResult;
 				try {
-					int startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(
-						getContext(), pendingIntent, GodotDownloaderService.class);
+					startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(
+							getContext(),
+							pendingIntent,
+							GodotDownloaderService.class);
+
 					if (startResult != DownloaderClientMarshaller.NO_DOWNLOAD_REQUIRED) {
-						mDownloaderClientStub = DownloaderClientMarshaller.CreateStub(this, GodotDownloaderService.class);
+						// This is where you do set up to display the download
+						// progress (next step in onCreateView)
+						mDownloaderClientStub = DownloaderClientMarshaller.CreateStub(this,
+								GodotDownloaderService.class);
+
 						return;
 					}
 				} catch (NameNotFoundException e) {
-					e.printStackTrace();
+					// TODO Auto-generated catch block
 				}
 			}
 		}
 
 		mCurrentIntent = activity.getIntent();
+
 		initializeGodot();
 		BenchmarkUtils.endBenchmarkMeasure("Godot::onCreate");
 	}
