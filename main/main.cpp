@@ -725,19 +725,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	Thread::make_main_thread();
 	set_current_thread_safe_for_nodes(true);
 
-	if (OS::get_singleton()->has_environment("GODOT_RENDERING_DRIVER")) {
-		String driver = OS::get_singleton()->get_environment("GODOT_RENDERING_DRIVER");
-		if (driver == "mobile") {
-			rendering_method = "mobile";
-			rendering_driver = "vulkan";
-		} else if (driver == "compatibility") {
-			rendering_method = "gl_compatibility";
-			rendering_driver = "opengl3";
-		} else {
-			print_line("⚠️ 未知的渲染器选择标识：" + driver + "，将使用默认设置");
-		}
-	}
-
 	OS::get_singleton()->initialize();
 
 	// Benchmark tracking must be done after `OS::get_singleton()->initialize()` as on some
@@ -983,8 +970,16 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			}
 		} else if (I->get() == "--rendering-driver") {
 			if (I->next()) {
-				rendering_driver = I->next()->get();
+				rendering_driver = I->next()->get().to_lower();
 				N = I->next()->next();
+				if (rendering_driver == "mobile") {
+					rendering_method = "mobile";
+					rendering_driver = "vulkan";
+				} else if (rendering_driver == "compatibility") {
+					rendering_method = "gl_compatibility";
+					rendering_driver = "opengl3";
+				}
+				print_line("🟢 用户指定渲染器：" + rendering_driver + " / " + rendering_method);
 			} else {
 				OS::get_singleton()->print("Missing rendering driver argument, aborting.\n");
 				goto error;
