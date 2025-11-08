@@ -1606,6 +1606,7 @@ void RasterizerSceneGLES3::_setup_lights(const RenderDataGLES3 *p_render_data, b
 				r_spot_light_count++;
 			} break;
 		}
+		li->last_pass = RSG::rasterizer->get_frame_number();
 	}
 
 	if (r_omni_light_count) {
