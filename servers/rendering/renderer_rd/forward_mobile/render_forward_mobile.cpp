@@ -70,7 +70,7 @@ void RenderForwardMobile::ForwardIDStorageMobile::map_forward_id(RendererRD::For
 	forward_id_allocators[p_type].last_pass[p_id] = p_last_pass;
 }
 
-void RenderForwardMobile::ForwardIDStorageMobile::fill_push_constant_instance_indices(GeometryInstanceForwardMobile::PushConstant *p_push_constant, uint32_t &spec_constants, GeometryInstanceForwardMobile *p_instance) {
+void RenderForwardMobile::ForwardIDStorageMobile::fill_push_constant_instance_indices(GeometryInstanceForwardMobile::PushConstant *p_push_constant, uint32_t &spec_constants, const GeometryInstanceForwardMobile *p_instance) {
 	uint64_t current_frame = RSG::rasterizer->get_frame_number();
 
 	p_push_constant->omni_lights[0] = 0xFFFFFFFF;
