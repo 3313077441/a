@@ -1221,16 +1221,23 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 		// This has to be done after _setup_lights was called this frame
 		// TODO, check shadow status of lights here, if using shadows, skip here and add below
 		if (p_pass_mode == PASS_MODE_COLOR) {
+			uint64_t current_frame = RSG::rasterizer->get_frame_number();
 			if (inst->omni_light_count) {
 				inst->omni_light_gl_cache.resize(inst->omni_light_count);
 				for (uint32_t j = 0; j < inst->omni_light_count; j++) {
 					inst->omni_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->omni_lights[j]);
+					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(light_instance) != current_frame) {
+						continue;
+					}
 				}
 			}
 			if (inst->spot_light_count) {
 				inst->spot_light_gl_cache.resize(inst->spot_light_count);
 				for (uint32_t j = 0; j < inst->spot_light_count; j++) {
 					inst->spot_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->spot_lights[j]);
+					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(light_instance) != current_frame) {
+						continue;
+					}
 				}
 			}
 		}
