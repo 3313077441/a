@@ -1224,26 +1224,30 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 			inst->light_passes.clear();
 			inst->spot_light_gl_cache.clear();
 			inst->omni_light_gl_cache.clear();
-			uint64_t current_frame = RSG::rasterizer->get_frame_number();
+			const uint64_t current_frame = RSG::rasterizer->get_frame_number();
 			if (inst->omni_light_count) {
-				inst->omni_light_gl_cache.resize(inst->omni_light_count);
+				inst->omni_light_gl_cache.reserve(inst->omni_light_count);
 				for (uint32_t j = 0; j < inst->omni_light_count; j++) {
-					inst->omni_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->omni_lights[j]);
 					const RID li = inst->omni_lights[j];
 					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(li) != current_frame) {
 						continue;
 					}
+					inst->omni_light_gl_cache.push_back(
+						GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(li));
 				}
+				inst->omni_light_count = inst->omni_light_gl_cache.size();
 			}
 			if (inst->spot_light_count) {
-				inst->spot_light_gl_cache.resize(inst->spot_light_count);
+				inst->spot_light_gl_cache.reserve(inst->spot_light_count);
 				for (uint32_t j = 0; j < inst->spot_light_count; j++) {
-					inst->spot_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->spot_lights[j]);
 					const RID li = inst->spot_lights[j];
 					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(li) != current_frame) {
 						continue;
 					}
+					inst->spot_light_gl_cache.push_back(
+						GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(li));
 				}
+				inst->spot_light_count = inst->spot_light_gl_cache.size();
 			}
 		}
 
