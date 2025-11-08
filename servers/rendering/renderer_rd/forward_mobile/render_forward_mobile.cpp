@@ -293,10 +293,10 @@ RID RenderForwardMobile::RenderBufferDataForwardMobile::get_color_fbs(Framebuffe
 			RID render_target = render_buffers->get_render_target();
 			ERR_FAIL_COND_V(render_target.is_null(), RID());
 			RID target_buffer;
-			if (texture_storage->render_target_get_msaa(render_target) == RS::VIEWPORT_MSAA_DISABLED) {
-				target_buffer = texture_storage->render_target_get_rd_texture(render_target);
+			if (RendererRD::TextureStorage::get_singleton()->render_target_get_msaa(render_target) == RS::VIEWPORT_MSAA_DISABLED) {
+				target_buffer = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture(render_target);
 			} else {
-				target_buffer = texture_storage->render_target_get_rd_texture_msaa(render_target);
+				target_buffer = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture_msaa(render_target);
 			}
 			ERR_FAIL_COND_V(target_buffer.is_null(), RID());
 
@@ -490,7 +490,7 @@ RID RenderForwardMobile::_setup_render_pass_uniform_set(RenderListType p_render_
 		u.binding = 7;
 		u.uniform_type = RD::UNIFORM_TYPE_TEXTURE;
 		u.ids.resize(MAX_VOXEL_GI_INSTANCESS);
-		RID default_tex = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_3D_WHITE);
+		RID default_tex = RendererRD::TextureStorage::get_singleton()->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_3D_WHITE);
 		for (int i = 0; i < MAX_VOXEL_GI_INSTANCESS; i++) {
 			if (i < (int)p_voxel_gi_instances.size()) {
 				RID tex = gi.voxel_gi_instance_get_texture(p_voxel_gi_instances[i]);
@@ -720,7 +720,7 @@ void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color
 	uint32_t directional_light_count = 0;
 	uint32_t positional_light_count = 0;
 	light_storage->update_light_buffers(p_render_data, *p_render_data->lights, p_render_data->scene_data->cam_transform, p_render_data->shadow_atlas, using_shadows, directional_light_count, positional_light_count, p_render_data->directional_light_soft_shadows);
-	texture_storage->update_decal_buffer(*p_render_data->decals, p_render_data->scene_data->cam_transform);
+	RendererRD::TextureStorage::get_singleton()->update_decal_buffer(*p_render_data->decals, p_render_data->scene_data->cam_transform);
 
 	p_render_data->directional_light_count = directional_light_count;
 
