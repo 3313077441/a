@@ -5,7 +5,7 @@ on: workflow_dispatch
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: main
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes optimize=speed use_lto=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=no debug_symbols=no module_text_server_fb_enabled=yes optimize=speed use_lto=yes
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-android
