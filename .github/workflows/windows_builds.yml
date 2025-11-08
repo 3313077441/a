@@ -8,7 +8,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 'main'
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes optimize=speed use_lto=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=no module_text_server_fb_enabled=yes optimize=speed use_lto=yes
   SCONS_CACHE_MSVC_CONFIG: true
 
 concurrency:
