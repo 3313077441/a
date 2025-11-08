@@ -1226,7 +1226,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				inst->omni_light_gl_cache.resize(inst->omni_light_count);
 				for (uint32_t j = 0; j < inst->omni_light_count; j++) {
 					inst->omni_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->omni_lights[j]);
-					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(light_instance) != current_frame) {
+					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(li) != current_frame) {
 						continue;
 					}
 				}
@@ -1235,7 +1235,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				inst->spot_light_gl_cache.resize(inst->spot_light_count);
 				for (uint32_t j = 0; j < inst->spot_light_count; j++) {
 					inst->spot_light_gl_cache[j] = GLES3::LightStorage::get_singleton()->light_instance_get_gl_id(inst->spot_lights[j]);
-					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(light_instance) != current_frame) {
+					if (GLES3::LightStorage::get_singleton()->light_instance_get_render_pass(li) != current_frame) {
 						continue;
 					}
 				}
