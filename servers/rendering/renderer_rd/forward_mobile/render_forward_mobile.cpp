@@ -70,7 +70,7 @@ void RenderForwardMobile::ForwardIDStorageMobile::map_forward_id(RendererRD::For
 	forward_id_allocators[p_type].last_pass[p_id] = p_last_pass;
 }
 
-void RenderForwardMobile::ForwardIDStorageMobile::fill_push_constant_instance_indices(GeometryInstanceForwardMobile::PushConstant *p_push_constant, uint32_t &spec_constants, const GeometryInstanceForwardMobile *p_instance) {
+void RenderForwardMobile::ForwardIDStorageMobile::fill_push_constant_instance_indices(GeometryInstanceForwardMobile::PushConstant *p_push_constant, uint32_t &spec_constants, GeometryInstanceForwardMobile *p_instance) {
 	uint64_t current_frame = RSG::rasterizer->get_frame_number();
 
 	p_push_constant->omni_lights[0] = 0xFFFFFFFF;
@@ -93,46 +93,46 @@ void RenderForwardMobile::ForwardIDStorageMobile::fill_push_constant_instance_in
 		uint32_t ofs = idx < 4 ? 0 : 1;
 		uint32_t shift = (idx & 0x3) << 3;
 		uint32_t mask = ~(0xFF << shift);
-		if (forward_id_storage_mobile->forward_id_allocators[RendererRD::FORWARD_ID_TYPE_OMNI_LIGHT].last_pass[p_instance->omni_lights[i]] == current_frame) {
+		if (forward_id_allocators[RendererRD::FORWARD_ID_TYPE_OMNI_LIGHT].last_pass[p_instance->omni_lights[i]] == current_frame) {
 			p_push_constant->omni_lights[ofs] &= mask;
 			p_push_constant->omni_lights[ofs] |= uint32_t(forward_id_allocators[RendererRD::FORWARD_ID_TYPE_OMNI_LIGHT].map[p_instance->omni_lights[i]]) << shift;
 			idx++;
 		}
 	}
-	p_instance_data->spot_lights[0] = 0xFFFFFFFF;
-	p_instance_data->spot_lights[1] = 0xFFFFFFFF;
+	p_push_constant->spot_lights[0] = 0xFFFFFFFF;
+	p_push_constant->spot_lights[1] = 0xFFFFFFFF;
 	idx = 0;
 	for (uint32_t i = 0; i < p_instance->spot_light_count; i++) {
 		uint32_t ofs = idx < 4 ? 0 : 1;
 		uint32_t shift = (idx & 0x3) << 3;
 		uint32_t mask = ~(0xFF << shift);
-		if (forward_id_storage_mobile->forward_id_allocators[RendererRD::FORWARD_ID_TYPE_SPOT_LIGHT].last_pass[p_instance->spot_lights[i]] == current_frame) {
+		if (forward_id_allocators[RendererRD::FORWARD_ID_TYPE_SPOT_LIGHT].last_pass[p_instance->spot_lights[i]] == current_frame) {
 			p_push_constant->spot_lights[ofs] &= mask;
 			p_push_constant->spot_lights[ofs] |= uint32_t(forward_id_allocators[RendererRD::FORWARD_ID_TYPE_SPOT_LIGHT].map[p_instance->spot_lights[i]]) << shift;
 			idx++;
 		}
 	}
-	p_instance_data->decals[0] = 0xFFFFFFFF;
-	p_instance_data->decals[1] = 0xFFFFFFFF;
+	p_push_constant->decals[0] = 0xFFFFFFFF;
+	p_push_constant->decals[1] = 0xFFFFFFFF;
 	idx = 0;
 	for (uint32_t i = 0; i < p_instance->decals_count; i++) {
 		uint32_t ofs = idx < 4 ? 0 : 1;
 		uint32_t shift = (idx & 0x3) << 3;
 		uint32_t mask = ~(0xFF << shift);
-		if (forward_id_storage_mobile->forward_id_allocators[RendererRD::FORWARD_ID_TYPE_DECAL].last_pass[p_instance->decals[i]] == current_frame) {
+		if (forward_id_allocators[RendererRD::FORWARD_ID_TYPE_DECAL].last_pass[p_instance->decals[i]] == current_frame) {
 			p_push_constant->decals[ofs] &= mask;
 			p_push_constant->decals[ofs] |= uint32_t(forward_id_allocators[RendererRD::FORWARD_ID_TYPE_DECAL].map[p_instance->decals[i]]) << shift;
 			idx++;
 		}
 	}
-	p_instance_data->reflection_probes[0] = 0xFFFFFFFF;
-	p_instance_data->reflection_probes[1] = 0xFFFFFFFF;
+	p_push_constant->reflection_probes[0] = 0xFFFFFFFF;
+	p_push_constant->reflection_probes[1] = 0xFFFFFFFF;
 	idx = 0;
 	for (uint32_t i = 0; i < p_instance->reflection_probe_count; i++) {
 		uint32_t ofs = idx < 4 ? 0 : 1;
 		uint32_t shift = (idx & 0x3) << 3;
 		uint32_t mask = ~(0xFF << shift);
-		if (forward_id_storage_mobile->forward_id_allocators[RendererRD::FORWARD_ID_TYPE_REFLECTION_PROBE].last_pass[p_instance->reflection_probes[i]] == current_frame) {
+		if (forward_id_allocators[RendererRD::FORWARD_ID_TYPE_REFLECTION_PROBE].last_pass[p_instance->reflection_probes[i]] == current_frame) {
 			p_push_constant->reflection_probes[ofs] &= mask;
 			p_push_constant->reflection_probes[ofs] |= uint32_t(forward_id_allocators[RendererRD::FORWARD_ID_TYPE_REFLECTION_PROBE].map[p_instance->reflection_probes[i]]) << shift;
 			idx++;
