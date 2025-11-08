@@ -531,6 +531,7 @@ protected:
 		struct ForwardIDAllocator {
 			LocalVector<bool> allocations;
 			LocalVector<uint8_t> map;
+			LocalVector<uint64_t> last_pass;
 		};
 
 		ForwardIDAllocator forward_id_allocators[RendererRD::FORWARD_ID_MAX];
@@ -538,7 +539,7 @@ protected:
 	public:
 		virtual RendererRD::ForwardID allocate_forward_id(RendererRD::ForwardIDType p_type) override;
 		virtual void free_forward_id(RendererRD::ForwardIDType p_type, RendererRD::ForwardID p_id) override;
-		virtual void map_forward_id(RendererRD::ForwardIDType p_type, RendererRD::ForwardID p_id, uint32_t p_index) override;
+		virtual void map_forward_id(RendererRD::ForwardIDType p_type, RendererRD::ForwardID p_id, uint32_t p_index, uint64_t p_last_pass) override;
 		virtual bool uses_forward_ids() const override { return true; }
 
 		void fill_push_constant_instance_indices(GeometryInstanceForwardMobile::PushConstant *p_push_constant, uint32_t &spec_constants, const GeometryInstanceForwardMobile *p_instance);
